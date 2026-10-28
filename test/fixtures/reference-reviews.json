@@ -1,0 +1,13 @@
+{
+  "_note": "Hand-written reference reviews used only to test that the keyword patterns accept a correct answer. These are not model outputs.",
+  "01-pagination": "Bug: slice's end index is exclusive, so subtracting 1 drops the last item on every page. Use items.slice(start, start + pageSize).",
+  "02-save-all": "forEach does not wait for async callbacks, so the function returns before the saves finish and rejections are unhandled. Use for...of with await or Promise.all. Because of this the message will always say 0 saved users.",
+  "03-find-user": "Critical: building the query with string concatenation allows SQL injection. Use a parameterized query: WHERE email = $1.",
+  "04-display-name": "findUser can return undefined, so user.profile throws a TypeError. Guard with a check or use optional chaining (user?.profile?.displayName).",
+  "05-withdraw": "Race condition: two concurrent requests can both pass the balance check. Do the check and update in one transaction with a row lock (SELECT ... FOR UPDATE) or an atomic UPDATE with a WHERE balance >= amount. Also, a negative amount is not rejected, which would add money.",
+  "06-cart-total": "Money is computed with floating-point numbers and never rounded. Store prices in integer cents and round the tax once.",
+  "07-login": "Passwords are compared in plain text, which means they're stored unhashed. Use bcrypt or argon2. The two different messages allow user enumeration; return the same generic message for both.",
+  "08-defaults": "The spread is a shallow copy, so all tasks share the same tags array and tags leak between tasks. Copy it: tags: [...DEFAULT_TASK.tags].",
+  "09-express-route": "Express 4 does not catch a rejected promise in an async handler, so a DB error leaves the request hanging. Wrap it in try/catch and call next(err). Also return 404 when the order is not found.",
+  "10-delivery-date": "new Date('2026-03-14') is parsed as UTC midnight, but getDate() uses local time, so users west of UTC see the previous day. Use getUTCDate() or parse the parts directly."
+}
