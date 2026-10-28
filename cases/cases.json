@@ -1,0 +1,243 @@
+[
+  {
+    "id": "01-pagination",
+    "title": "Pagination slice",
+    "file": "snippets/01-pagination.ts",
+    "bugs": [
+      {
+        "id": "off-by-one",
+        "description": "slice() end is exclusive, so `start + pageSize - 1` drops the last item of every page.",
+        "severity": "medium",
+        "patterns": [
+          "off[- ]by[- ]one",
+          "exclusive",
+          "(drops|skips|misses|loses|omits).{0,40}(last|final) (item|element)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "02-save-all",
+    "title": "Async work inside forEach",
+    "file": "snippets/02-save-all.ts",
+    "bugs": [
+      {
+        "id": "foreach-not-awaited",
+        "description": "forEach does not wait for async callbacks, so the function returns before any save finishes and errors are lost.",
+        "severity": "high",
+        "patterns": [
+          "forEach.{0,80}(does not|doesn't|won't|will not|isn't|is not|never|ignores)",
+          "(does not|doesn't|won't|will not) (wait|await)",
+          "Promise\\.all",
+          "for\\s*\\.\\.\\.\\s*of",
+          "for\\s*\\(const \\w+ of",
+          "fire[- ]and[- ]forget"
+        ]
+      },
+      {
+        "id": "wrong-count",
+        "description": "`saved` is read before the callbacks run, so the message almost always says 0.",
+        "severity": "low",
+        "patterns": [
+          "(always|usually|likely|still|will) (be |return |report |say |show )?(0|zero)\\b",
+          "before.{0,50}(increment|saves? (complete|finish|run))",
+          "(count|counter|saved).{0,40}(wrong|incorrect|inaccurate|stale)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "03-find-user",
+    "title": "Login lookup query",
+    "file": "snippets/03-find-user.ts",
+    "bugs": [
+      {
+        "id": "sql-injection",
+        "description": "The email is concatenated into the SQL string, which allows SQL injection. Use a parameterized query.",
+        "severity": "critical",
+        "patterns": [
+          "sql injection",
+          "injection",
+          "parameteri[sz]ed",
+          "prepared statement",
+          "\\$1"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "04-display-name",
+    "title": "Header display name",
+    "file": "snippets/04-display-name.ts",
+    "bugs": [
+      {
+        "id": "null-user",
+        "description": "findUser can return undefined, so `user.profile` throws a TypeError. Profile and displayName may also be missing.",
+        "severity": "high",
+        "patterns": [
+          "(is|be|could be|may be|might be|can be) (null|undefined)",
+          "(null|undefined) (check|guard)",
+          "check (for|if|whether|that).{0,30}(user|null|undefined|exist)",
+          "optional chaining",
+          "\\?\\.",
+          "TypeError",
+          "cannot read propert"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "05-withdraw",
+    "title": "Wallet withdrawal",
+    "file": "snippets/05-withdraw.ts",
+    "bugs": [
+      {
+        "id": "race-condition",
+        "description": "Read-check-write without a transaction or row lock. Two concurrent withdrawals can both pass the check and overdraw the wallet.",
+        "severity": "critical",
+        "patterns": [
+          "race",
+          "concurren",
+          "transaction",
+          "atomic",
+          "row[- ]lock",
+          "for update",
+          "double[- ]spend",
+          "simultaneous"
+        ]
+      },
+      {
+        "id": "negative-amount",
+        "description": "A negative or non-numeric amount is not rejected, so a negative withdrawal adds money.",
+        "severity": "high",
+        "patterns": [
+          "negative",
+          "amount (<=|<) ?0",
+          "validat\\w* (the )?amount",
+          "amount.{0,30}validat",
+          "NaN"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "06-cart-total",
+    "title": "Cart total in dollars",
+    "file": "snippets/06-cart-total.ts",
+    "bugs": [
+      {
+        "id": "float-money",
+        "description": "Money is calculated with floating-point dollars and never rounded, so totals like 10.000000000000002 reach the payment provider. Use integer cents and round once.",
+        "severity": "medium",
+        "patterns": [
+          "floating[- ]point",
+          "\\bfloat",
+          "cents",
+          "round",
+          "precision",
+          "toFixed",
+          "decimal"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "07-login",
+    "title": "Login check",
+    "file": "snippets/07-login.ts",
+    "bugs": [
+      {
+        "id": "plaintext-password",
+        "description": "Passwords are stored and compared in plain text. They should be hashed with bcrypt or argon2 and compared with the library's verify function.",
+        "severity": "critical",
+        "patterns": [
+          "plain[- ]?text",
+          "hash",
+          "bcrypt",
+          "argon2",
+          "scrypt"
+        ]
+      },
+      {
+        "id": "user-enumeration",
+        "description": "Different error messages for unknown email and wrong password let an attacker find out which emails have accounts.",
+        "severity": "medium",
+        "patterns": [
+          "enumerat",
+          "(same|single|generic|identical) (error )?message",
+          "reveals?.{0,40}(exist|account|email)",
+          "which emails"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "08-defaults",
+    "title": "Task defaults",
+    "file": "snippets/08-defaults.ts",
+    "bugs": [
+      {
+        "id": "shared-array",
+        "description": "Spread makes a shallow copy, so every task shares the same `tags` array and tags leak between tasks.",
+        "severity": "high",
+        "patterns": [
+          "shallow",
+          "shared?.{0,40}(array|reference|tags)",
+          "same (array|reference)",
+          "mutat",
+          "leak"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "09-express-route",
+    "title": "Express async route",
+    "file": "snippets/09-express-route.js",
+    "bugs": [
+      {
+        "id": "unhandled-rejection",
+        "description": "Express 4 does not catch rejected promises from async handlers, so a database error leaves the request hanging. Wrap in try/catch and call next(err).",
+        "severity": "high",
+        "patterns": [
+          "unhandled",
+          "try\\s*/\\s*catch",
+          "try[- ]catch",
+          "next\\(err",
+          "error handl",
+          "reject",
+          "hang"
+        ]
+      },
+      {
+        "id": "missing-404",
+        "description": "When no order exists, it returns 200 with null instead of a 404.",
+        "severity": "medium",
+        "patterns": [
+          "404",
+          "not found"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "10-delivery-date",
+    "title": "Delivery date",
+    "file": "snippets/10-delivery-date.ts",
+    "bugs": [
+      {
+        "id": "timezone-shift",
+        "description": "Date-only ISO strings are parsed as UTC midnight, but getDate() uses local time, so users west of UTC see the previous day.",
+        "severity": "medium",
+        "patterns": [
+          "time ?zone",
+          "\\bUTC\\b",
+          "getUTCDate",
+          "local time",
+          "previous day",
+          "day (before|earlier)"
+        ]
+      }
+    ]
+  }
+]
