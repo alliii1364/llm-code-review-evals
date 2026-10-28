@@ -1,0 +1,23 @@
+{
+  "name": "llm-code-review-evals",
+  "version": "1.0.0",
+  "description": "Measures how many planted bugs an LLM finds when it reviews code.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Sheikh Ali Asif",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "eval": "tsx src/run.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}
