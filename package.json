@@ -11,6 +11,7 @@
   },
   "scripts": {
     "eval": "tsx src/run.ts",
+    "agent": "tsx src/agent/run.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

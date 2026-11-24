@@ -1,0 +1,4 @@
+{
+  "title": "Slugs mangle accented letters",
+  "ticket": "slugify(\"Café Déjà Vu\") returns \"caf-d-j-vu\". It should return \"cafe-deja-vu\". Slugs should be clean, valid URL slugs. Fix slugify."
+}
