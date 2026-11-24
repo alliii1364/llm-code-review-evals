@@ -1,0 +1,4 @@
+{
+  "title": "Inclusive range is off by one",
+  "ticket": "range(1, 3) returns [1, 2] but the docs say the end value is inclusive, so it should return [1, 2, 3]. Fix the bug."
+}

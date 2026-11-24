@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/alliii1364/llm-code-review-evals/actions/workflows/ci.yml/badge.svg)
 
-A small test harness that measures how well an AI model reviews code. It gives the model 10 short snippets with known, planted bugs, then scores how many of those bugs the review actually names.
+A small test harness that measures how well an AI model reviews code, and whether an agent can fix bugs with tools. It gives the model 10 short snippets with known, planted bugs, then scores how many of those bugs the review actually names.
 
 **Stack:** TypeScript, Node.js 22, Vitest, GitHub Actions, OpenAI or Anthropic API (plain `fetch`, no SDK)
 
@@ -57,6 +57,30 @@ npm test                    # unit tests, no API key needed
 
 Each run saves the raw reviews to `runs/<model>-<timestamp>/reviews/`, plus `summary.json` and `results.md`. The latest report is also copied to `results.md` in the project root.
 
+## Agent eval: can the model fix a bug on its own?
+
+Reviewing code is one skill. Fixing it in a real project, with tools, is the harder one agents are used for. `npm run agent` gives the model a bug ticket and four tools (`list_files`, `read_file`, `write_file`, `run_tests`) plus `finish`, then runs it in a loop until it finishes or runs out of steps.
+
+| Task | What it tests |
+|---|---|
+| 01-range | A plain off-by-one. The baseline. |
+| 02-cart-cents | The symptom is in `cart.js`, the root cause is `Math.floor` in `money.js`. |
+| 03-slugify | The ticket shows one accent bug. Hidden tests also check trailing hyphens, so a narrow fix fails. |
+
+Grading is done on the final project, not on what the model says:
+
+- **Solved** means all visible and hidden tests pass. The hidden tests are never shown to the model.
+- **Test tampering is caught.** The original tests are restored before grading. If the agent edited or deleted one, the task is reported as tampered and cannot count as solved.
+- **Verified final edit** records whether the last test run came after the last edit, i.e. whether the agent checked its final code.
+- Steps used and why it stopped (`finish`, no tool call, or max steps) are reported too.
+
+```bash
+npm run agent                          # all tasks, uses PROVIDER / MODEL from .env
+npm run agent -- --only 02-cart-cents --max-steps 10
+```
+
+Results go to `agent-results.md`. **Safety:** `run_tests` runs the model's code with your user's permissions. File tools cannot leave the temp workspace, but run this on a throwaway machine or container. The grader, the loop and both providers' tool-calling formats are covered by `npm test`, using a scripted fake model, so no API key is needed.
+
 ## Results
 
 _No results committed yet. Run `npm run eval` and paste `results.md` here, then write a short analysis below._
@@ -76,6 +100,7 @@ _For each missed bug: what the review said instead, and why you think the model 
 - Add "clean" control snippets with no bugs, to measure false alarms.
 - Run each case several times and report how much the results vary.
 - Compare two models side by side in one report.
+- More agent tasks: multi-file refactors, tasks where the visible test itself is wrong, and prompt-injection text inside a file the agent reads.
 
 ## Project structure
 
@@ -89,7 +114,9 @@ src/
   prompts.ts          review and judge prompts
   score.ts            keyword scorer and judge-answer parser
   report.ts           markdown report
-test/                 Vitest tests for cases and scoring
+agent-cases/        agent tasks: task.json, workspace/ (what the agent sees), hidden/ (extra tests)
+src/agent/          tool loop, sandboxed tools, grading, OpenAI and Anthropic tool calling
+test/                 Vitest tests for cases, scoring and the agent harness
 ```
 
 ## Author

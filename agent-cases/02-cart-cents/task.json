@@ -1,0 +1,4 @@
+{
+  "title": "Cart total is off by one cent",
+  "ticket": "A cart with one item priced $19.99 shows a total of 1998 cents instead of 1999. Other prices are sometimes wrong by one cent too. Find the root cause and fix it."
+}
